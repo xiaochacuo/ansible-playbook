@@ -1,0 +1,9 @@
+---
+- hosts: all
+  #remote_user: ops
+  become: true
+  tasks:
+    - name: touch gitlab
+      file:
+        path: /opt/gitlab
+        state: touch

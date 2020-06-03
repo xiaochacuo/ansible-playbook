@@ -1,0 +1,15 @@
+---
+#manage zabbix_server
+- name: "{{ other_state }} zabbix_server service"
+  service: name={{ item }} state={{ sys_state }}
+  with_items:
+    - keepalived
+    - zabbix_server
+#  register: result
+
+#- name: pkill service
+#  shell: pkill -9 zabbix
+#  when: result | failed
+  notify:
+    poweroff server
+  

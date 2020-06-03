@@ -1,0 +1,10 @@
+---
+#manage 10.151.137.20
+- name: "{{ other_state }} itop service"
+  service: name={{ item }} state={{ sys_state }}
+  with_items:
+    - "{{ sys_service }}"
+    - zabbix_server
+    - grafana-server
+  notify:
+    poweroff server

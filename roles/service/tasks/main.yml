@@ -1,0 +1,42 @@
+---
+# tasks file for service
+#- name: manage gitlab
+#  include: manage_gitlab.yml  
+#  when: ansible_hosts == 'gitlab'
+#  tags: t22
+
+- name: manage iTop server
+  include: manage_itop.yml
+  when: inventory_hostname in groups['iTop']
+  tags: t20
+
+- name: manage elk
+  include: manage_elk.yml
+  when: inventory_hostname in groups['ELK']
+  tags: t_elk
+
+- name: manage_test
+  include: manage_test.yml
+  when: inventory_hostname in groups['test']
+  tags: t_test
+
+
+- name: manage zabbix proxy
+  include: manage_zabbix_proxy.yml
+  when: inventory_hostname in groups['zabbix_proxy']
+  tags: t_zabbix_proxy
+
+- name: manage zabbix server
+  include: manage_zabbix_server.yml
+  when: inventory_hostname in groups['zabbix_server']
+  tags: t_zabbix_server
+
+- name: manage zabbix database
+  include: manage_zabbix_database.yml
+  when: inventory_hostname in groups['zabbix_database']
+  tags: t_zabbix_database
+
+- name: manage zabbix web
+  include: manage_zabbix_web.yml
+  when: inventory_hostname in groups['zabbix_web']
+  tags: t_zabbix_web

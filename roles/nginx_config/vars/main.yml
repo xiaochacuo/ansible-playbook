@@ -1,0 +1,4 @@
+---
+# vars file for nginx_config
+server_name: "localhost"
+root_dir: "/data/nginx/html"

@@ -1,0 +1,7 @@
+---
+# 源码安装
+- hosts: all
+  become: true
+  become_user: root
+  roles:
+     - { role: zabbix-agent, zabbix_agent_install_from_source: true, zabbix_agent_server_host: "10.151.137.11,10.151.137.10" }

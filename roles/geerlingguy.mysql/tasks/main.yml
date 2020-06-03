@@ -1,0 +1,38 @@
+---
+# Variable configuration.
+- include_tasks: variables.yml
+  when: mysql_state == "present"
+
+# Setup/install tasks.
+- include_tasks: setup-RedHat.yml
+  when: ansible_os_family == 'RedHat' and mysql_state == "present"
+
+- include_tasks: setup-Debian.yml
+  when: ansible_os_family == 'Debian' and mysql_state == "present"
+
+- include_tasks: setup-Archlinux.yml
+  when: ansible_os_family == 'Archlinux' and mysql_state == "present"
+
+- name: Check if MySQL packages were installed.
+  set_fact:
+    mysql_install_packages: "{{ (rh_mysql_install_packages is defined and rh_mysql_install_packages.changed)
+      or (deb_mysql_install_packages is defined and deb_mysql_install_packages.changed)
+      or (arch_mysql_install_packages is defined and arch_mysql_install_packages.changed) }}"
+  when: mysql_state == "present"
+
+# Configure MySQL.
+- include_tasks: configure.yml
+  when: mysql_state == "present"
+- include_tasks: secure-installation.yml
+  when: mysql_state == "present"
+- include_tasks: databases.yml
+  when: mysql_state == "present"
+- include_tasks: users.yml
+  when: mysql_state == "present"
+- include_tasks: replication.yml
+  when: mysql_state == "present"
+
+# Uninstall mysql
+- name: uninstall mysql
+  include: uninstall.yml
+  when: mysql_state == "absent"

@@ -1,0 +1,25 @@
+---
+#manage 10.151.137.22's service
+- name: "{{ other_state }} systemctl service"
+  service: name={{ item }} state={{ sys_state }}
+  with_items:
+    - "{{ sys_service }}"
+    - jenkins
+    - tomcat
+  tags: t_22_sys
+
+- name: "{{ other_state }} other service| {{ other_state }} gitlab"
+  command: /usr/bin/gitlab-ctl "{{ other_state }}"
+  tags: t_22_gitlab
+
+- name: "{{ other_state }} other service| {{ other_state }} chandao"
+  command: /opt/zbox/zbox "{{ other_state }}"
+  tags: t_22_chandao
+
+- name: "{{ other_state }} other service| {{ other_state }} AWX"
+  shell: systemctl "{{ other_state }}" docker &&  docker-compose up -d
+  args:
+    chdir: "{{ awx_docker_path }}"
+  when: other_state == "start"
+  notify:
+    poweroff server

@@ -1,0 +1,8 @@
+---
+- name: "{{ other_state }} systemctl service"
+  service: name={{ item }} state={{ sys_state }}
+  with_items:
+    - "{{ sys_service }}"
+  notify:
+    poweroff server
+  tags: sys

@@ -1,0 +1,4 @@
+---
+# handlers file for nginx_config
+- name: reload nginx service
+  shell: /usr/local/nginx/sbin/nginx -t;/usr/local/nginx/sbin/nginx -s reload

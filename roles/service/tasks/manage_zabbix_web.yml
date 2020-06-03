@@ -1,0 +1,9 @@
+---
+#manage zabbix_web
+- name: "{{ other_state }} apache service"
+  service: name={{ item }} state={{ sys_state }}
+  with_items:
+    - httpd
+  notify:
+    poweroff server
+  

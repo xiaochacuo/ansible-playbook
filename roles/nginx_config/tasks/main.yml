@@ -1,0 +1,11 @@
+---
+# tasks file for nginx_config
+- name: createvhosts
+  file: 
+    path: "/usr/local/nginx/conf/vhosts/"
+    state: directory
+  tags: create_dir
+- name: copyconf file nginx.conf          # 调用templates模块
+  template: src=temp_server.conf dest=/usr/local/nginx/conf/vhosts/{{ server_name }}.conf
+  tags: ngxconf
+  notify: reload nginx service 

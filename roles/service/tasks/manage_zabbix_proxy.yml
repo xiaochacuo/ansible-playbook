@@ -1,0 +1,9 @@
+---
+#manage zabbix_proxy
+- name: "{{ other_state }} zabbix_proxy service"
+  service: name={{ item }} state={{ sys_state }}
+  with_items:
+    - zabbix_proxy
+  notify:
+    poweroff server
+

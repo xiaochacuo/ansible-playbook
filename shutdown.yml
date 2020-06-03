@@ -1,0 +1,15 @@
+---
+- hosts: all
+  gather_facts: no
+  #remote_user: root
+  vars:
+    sys_service:
+      - httpd
+      - zabbix_agentd
+      - mysqld
+      - grafana-server
+      - php-fpm
+    sys_state: started
+    other_state: start
+  roles:
+    - service

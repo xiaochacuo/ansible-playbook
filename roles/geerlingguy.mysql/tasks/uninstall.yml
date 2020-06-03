@@ -1,0 +1,72 @@
+---
+# tasks file for ansible-role-mysql
+
+- name: (uninstall) Check if mysql service is installed
+  stat:
+    path: /usr/lib/systemd/system/{{ mysql_daemon }}.service
+  register: service_installed
+
+- name: (uninstall) Stop mysql service if running
+  systemd:
+    name: "{{ mysql_daemon }}"
+    enabled: no
+    state: stopped
+  when: service_installed.stat.exists
+
+- name: (uninstall) Remove service file {{ mysql_daemon }}.service
+  file:
+    path: /usr/lib/systemd/system/{{ mysql_daemon }}.service
+    state: absent
+
+- name: (uninstall) Perform systemctl daemon-reload
+  systemd:
+    daemon_reload: yes
+  changed_when: false
+
+- name: (uninstall) Check if mysql is already uninstalled
+  stat:
+    path: "{{ mysql_datadir }}"
+  register: is_uninstalled
+
+- name: (uninstall) yum remove mysql
+  yum:
+    name: "{{ mysql_packages }}"
+    state: absent
+
+- name:  (uninstall) remove yum repo
+  file:
+    path: /etc/yum.repos.d/{{ mysql_repo }}
+    state: absent
+    
+- name: (uninstall) Create backup archive before deletion at {{ mysql_datadir }}/mysql-backup-XXX.tgz    
+  archive:
+    path: "{{ mysql_datadir }}"
+    dest: "/opt/mysql-backup-{{ lookup('pipe','date +%Y%m%d%H%M%S') }}.tgz"
+  when: mysql_uninstall_create_backup and is_uninstalled.stat.exists
+
+    
+- name: (uninstall) remove mysqldata 
+  file:
+    path: "{{ mysql_datadir }}"
+    state: absent
+    
+- name: (uninstall) remove mysql log
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /var/log/mysqld.log
+    - /var/log/mysqld.err
+
+- name: (uninstall) Delete user {{ mysql_log_file_group }}    
+  user:
+    name: "{{ mysql_log_file_group }}"
+    groups: "{{ mysql_log_file_group }}"
+    state: absent
+    remove: yes
+    
+- name: (uninstall) Delete group {{ mysql_log_file_group }}
+  group:
+    name: "{{ mysql_log_file_group }}"
+    state: absent
+  

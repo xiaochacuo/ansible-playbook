@@ -1,0 +1,4 @@
+---
+# handlers file for nginx_install
+- name: start nginx service 
+  shell: /usr/local/nginx/sbin/nginx

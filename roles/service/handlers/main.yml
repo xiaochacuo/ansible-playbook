@@ -1,0 +1,10 @@
+---
+# handlers file for service
+- name: poweroff server
+  #command: /sbin/shutdown -t now
+  command: /sbin/shutdown -h now
+  tags: shut
+
+- name: restart server
+  command: /sbin/reboot
+  tags: reboot

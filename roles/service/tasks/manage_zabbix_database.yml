@@ -1,0 +1,9 @@
+---
+#manage zabbix_database
+- name: "{{ other_state }} mysqld service"
+  service: name={{ item }} state={{ sys_state }}
+  with_items:
+    - mysqld
+  notify:
+    poweroff server
+

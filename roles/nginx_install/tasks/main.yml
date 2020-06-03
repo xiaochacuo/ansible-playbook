@@ -1,0 +1,22 @@
+---
+# tasks file for nginx_install
+- name: copy nginx package to remote host  
+  copy: src=nginx-1.12.0.tar.gz  dest=/tmp/nginx-1.12.0.tar.gz  ##拉取nginx解压吧
+  tags: cppkg
+- name: tar nginx
+  shell: cd /tmp;tar -xf nginx-1.12.0.tar.gz  ##解压nginx包
+- name: install pakger
+  yum: 
+    name: ['openssl-devel', 'pcre-devel', 'gcc'] 
+    state: present    ##安装依赖包
+- name: install nginx
+  shell: cd /tmp/nginx-1.12.0;./configure --user=nginx --group=nginx --prefix=/usr/local/nginx --with-http_stub_status_module --with-http_ssl_module  --with-pcre;make && make install      ####编译安装
+- name: copy conf file nginx.conf          
+  template: src=nginx.conf dest=/usr/local/nginx/conf/nginx.conf  ###复制在template目录下的配置文件
+  tags: ngxconf
+- name: copy shell
+  copy: src=/opt/create_users.sh dest=/tmp/create_users.sh  ##拉取创建用户的shell脚本
+- name: create user nginx
+  shell: /bin/bash /tmp/create_users.sh
+  tags: add nginx
+  notify: start nginx service

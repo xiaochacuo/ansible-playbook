@@ -1,0 +1,7 @@
+---
+#manage elk
+- name: "{{ other_state }} elk service"
+  command: pkill -9 java
+  notify:
+    poweroff server
+

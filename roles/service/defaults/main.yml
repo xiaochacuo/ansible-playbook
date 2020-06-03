@@ -1,0 +1,12 @@
+---
+# defaults file for service
+awx_docker_path: /root/.awx/awxcompose
+
+sys_service: []
+
+sys_state: stopped
+#stopped started restarted reloaded
+
+other_state: stop
+#stop start
+

@@ -1,0 +1,62 @@
+---
+# author: lework
+
+- name: configure | Create zabbix logs path.
+  file: name={{ zabbix_agent_logs_path }} state=directory owner={{ zabbix_agent_user }} group={{ zabbix_agent_group }}
+  
+- name: configure | Check if hdware.sh is already exist.
+  stat: path={{ software_install_path }}/hdware.sh
+  register: hdware_file_result
+
+- name: configure | Download hdware.sh file.
+  get_url: url={{ hdware_file_url }} dest={{ software_install_path }} validate_certs=no
+  when: not  hdware_file_result.stat.exists
+
+- name: configure | create hdware.txt
+  command: sh /data/zabbix/hdware.sh
+
+- name: configure | temporary disable selinux
+  command: setenforce 0
+
+- name: configure | forever disable selinux
+  selinux: state=disabled
+
+- name: configure | close firewalld
+  service: 
+    name: firewalld
+    state: stopped
+    enabled: false    
+
+- name: configure | create a cron job
+  cron:
+    name: "a job for hdware.sh"
+    minute: "01"
+    hour: "23"
+    user: root
+    weekday: "0"
+    job: sh /data/zabbix/hdware.sh
+
+- name: configure | Setup zabbix agent config file.
+  replace: path={{ zabbix_agent_conf_path }}/zabbix_agentd.conf regexp={{ item.r }} replace={{ item.s }}
+  with_items:
+   - { r: '# PidFile=/tmp/zabbix_agentd.pid', s: "PidFile={{ zabbix_agent_logs_path }}/zabbix_agentd.pid"}
+   - { r: "/tmp", s: "{{ zabbix_agent_logs_path }}"}
+   - { r: "127.0.0.1", s: "{{ zabbix_agent_server_host }}"}
+   - { r: "Hostname=Zabbix server", s: "Hostname={{ zabbix_agent_hostname }}"}
+   - { r: "# UnsafeUserParameters=0", s: "UnsafeUserParameters=1"}
+   - { r: "# HostMetadataItem=", s: "HostMetadataItem=system.uname"}
+   - { r: "# EnableRemoteCommands=0", s: "EnableRemoteCommands=1"}
+   - { r: "# AllowRoot=0", s: "AllowRoot=1"}  
+   
+- name: configure | add linux.hdware in zabbix_agentd.conf
+  lineinfile:
+    dest: "{{ zabbix_agent_conf_path }}/zabbix_agentd.conf"
+    line: "UserParameter=linux.hdware,cat /data/zabbix/hdware.txt"
+
+- name: configure | Setup zabbix_agentd config file.
+  replace: path=/etc/init.d/zabbix_agentd regexp={{ item.r }} replace={{ item.s }}
+  with_items:
+  - { r: 'BASEDIR=/usr/local', s: "BASEDIR=/data/zabbix"}         
+
+- name: configure | Ensure zabbix agent is started and enabled on boot.
+  service: "name=zabbix_agentd state=restarted enabled=yes"
